@@ -1,18 +1,18 @@
 package core
 
 import (
-	"os"
-	"fmt"
 	"bufio"
+	"fmt"
+	"os"
 	"strings"
 )
 
-func GetInput(prompt string) string {
+func GetInput(prompt string, contains func(string) bool) string {
 	input := bufio.NewReader(os.Stdin)
 
 	for {
-		fmt.Printf("%v: ", prompt)
-		
+		fmt.Printf("%v", prompt)
+
 		value, err := input.ReadString('\n')
 		if err != nil {
 			fmt.Println("Invalid input!")
@@ -20,6 +20,11 @@ func GetInput(prompt string) string {
 		}
 
 		value = strings.TrimSpace(value)
+
+		if !contains(value) {
+			fmt.Println("Invalid input!")
+			continue
+		}
 
 		return value
 	}
