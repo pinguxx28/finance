@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"os"
 	"fmt"
 	"github.com/pinguxx28/finance/src/core"
+	"encoding/csv"
 	"strconv"
 	"time"
 )
@@ -117,6 +119,29 @@ func Transaction() {
 
 	confirmed := getConfirmation()
 	if confirmed {
+		historyFile, err := os.OpenFile("history.csv", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0664)
+		if err != nil {
+			fmt.Println("can't open file history.csv:", err)
+			os.Exit(1)
+		}
+
+		defer historyFile.Close()
+
+		csvRow := []string{transactionType, amount, category, date, description}
+		csvWriter := csv.NewWriter(historyFile)
+
+		err = csvWriter.Write(csvRow)
+		if err != nil {
+			fmt.Println("can't write row to buffer for history.csv:", err)
+			os.Exit(1)
+		}
+
+		csvWriter.Flush()
+		if csvWriter.Error() != nil {
+			fmt.Println("can't write row to history.csv:", err)
+			os.Exit(1)
+		}
+
 		fmt.Println("Transaction saved successfully!")
 	} else {
 		fmt.Println("Transaction discarded!")
